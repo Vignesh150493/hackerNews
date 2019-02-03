@@ -23,7 +23,7 @@ func (n *NetworkError) IsAccessDenied() bool {
 	return n.statusCode == 403
 }
 
-func (n *NetworkError) Error() string {
+func (n NetworkError) Error() string {
 	return fmt.Sprintf("Network error with status code: %d", n.statusCode)
 }
 

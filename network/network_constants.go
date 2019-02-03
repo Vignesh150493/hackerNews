@@ -1,18 +1,8 @@
 package network
 
-//HTTP Method Constants
-const (
-	MethodGet    string = "GET"
-	MethodPost   string = "POST"
-	MethodPut    string = "PUT"
-	MethodDelete string = "DELETE"
-)
-
 //Timeout Constants
 const (
 	DEFAULT_NETCLIENT_TIMEOUT               int = 30
-	DEFAULT_DIALER_TIMEOUT                  int = 30
-	DEFAULT_TRANSPORT_TLS_HANDSHAKE_TIMEOUT int = 30
 )
 
 //Network Constants

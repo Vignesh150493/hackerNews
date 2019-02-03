@@ -1,7 +1,5 @@
 package client
 
-import "fmt"
-
 type Client struct {
 	RespStringChannel chan string
 	ErrStringChannel  chan string
@@ -19,9 +17,19 @@ type ErrorResponder interface {
 	//Error(response []byte)
 }
 
-// CreateClientResponse will create client response with client implementation of bytes & error responders
-func CreateClientResponse(success ByteResponder, failure ErrorResponder) Client {
+// CreateClient will create client response with client implementation of bytes & error responders
+func CreateClient(success ByteResponder, failure ErrorResponder) Client {
 	return Client{RespStringChannel: make(chan string), ErrStringChannel: make(chan string), Success: success, Failure: failure}
+}
+
+func SendErr(errorChannel chan string, dataChannel chan string, e error) {
+	errorChannel <- e.Error()
+	dataChannel <- ""
+}
+
+func SendData(dataChannel chan string, errorChannel chan string,data string) {
+	dataChannel <- data
+	errorChannel <- ""
 }
 
 // WaitOnBothChannels will wait for the bytes and error and once received it will call corresponding bytes & error responders
@@ -33,20 +41,8 @@ func WaitOnBothChannels(c Client) {
 				c.Success.Response(responseString)
 			}
 		case err := <-c.ErrStringChannel:
-			fmt.Errorf("ERROR!")
-			fmt.Errorf(err)
+			// TODO handleErrorsBeforeSendingToClient(c, err)
 			c.Failure.Error(err)
-			//handleErrorsBeforeSendingToClient(c, err)
 		}
 	}
-}
-
-func SendErr(errorChannel chan string, dataChannel chan string, e error) {
-	errorChannel <- e.Error()
-	dataChannel <- ""
-}
-
-func SendData(dataChannel chan string, errorChannel chan string,data string) {
-	dataChannel <- data
-	errorChannel <- ""
 }

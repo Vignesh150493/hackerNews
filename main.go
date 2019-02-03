@@ -7,19 +7,20 @@ import (
 )
 
 func main() {
-	mobileClient := MobileClient{}
-	clientResponse := clientLib.CreateClientResponse(mobileClient, mobileClient)
-	go data.GetTopIds(clientResponse)
-	clientLib.WaitOnBothChannels(clientResponse)
+	mobileClient := ExternalClient{}
+
+	internalClient := clientLib.CreateClient(mobileClient, mobileClient)
+	go data.GetTopIds(internalClient)
+	clientLib.WaitOnBothChannels(internalClient)
 }
 
-type MobileClient struct {
+type ExternalClient struct {
 }
 
-func (client MobileClient) Response(response string) {
-	fmt.Print("RESPONSE IN MOBILE CLIENT : ", response)
+func (client ExternalClient) Response(response string) {
+	fmt.Print("EXTERNAL CLIENT RESPONSE : ", response)
 }
 
-func (client MobileClient) Error(errorResponse string) {
-	fmt.Print("ERROR IN MOBILE CLIENT : ", errorResponse)
+func (client ExternalClient) Error(errorResponse string) {
+	fmt.Print("EXTERNAL CLIENT ERROR : ", errorResponse)
 }
