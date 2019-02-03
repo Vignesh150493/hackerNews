@@ -1,5 +1,7 @@
 package client
 
+import "fmt"
+
 type Client struct {
 	RespStringChannel chan string
 	ErrStringChannel  chan string
@@ -17,32 +19,35 @@ type ErrorResponder interface {
 	//Error(response []byte)
 }
 
-// CreateClient will create client response with client implementation of bytes & error responders
-func CreateClient(success ByteResponder, failure ErrorResponder) Client {
-	return Client{RespStringChannel: make(chan string), ErrStringChannel: make(chan string), Success: success, Failure: failure}
-}
-
 func SendErr(errorChannel chan string, dataChannel chan string, e error) {
 	errorChannel <- e.Error()
 	dataChannel <- ""
 }
 
-func SendData(dataChannel chan string, errorChannel chan string,data string) {
+func SendData(dataChannel chan string, errorChannel chan string, data string) {
 	dataChannel <- data
 	errorChannel <- ""
 }
 
 // WaitOnBothChannels will wait for the bytes and error and once received it will call corresponding bytes & error responders
-func WaitOnBothChannels(c Client) {
+func (client Client) WaitOnBothChannels() {
 	for i := 0; i < 2; i++ {
 		select {
-		case responseString := <-c.RespStringChannel:
+		case responseString := <-client.RespStringChannel:
 			if responseString != "" {
-				c.Success.Response(responseString)
+				client.Success.Response(responseString)
 			}
-		case err := <-c.ErrStringChannel:
+		case err := <-client.ErrStringChannel:
 			// TODO handleErrorsBeforeSendingToClient(c, err)
-			c.Failure.Error(err)
+			client.Failure.Error(err)
 		}
 	}
+}
+
+func (client Client) Response(response string) {
+	fmt.Print("EXTERNAL CLIENT RESPONSE : ", response)
+}
+
+func (client Client) Error(errorResponse string) {
+	fmt.Print("EXTERNAL CLIENT ERROR : ", errorResponse)
 }
